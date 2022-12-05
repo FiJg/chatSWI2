@@ -2,7 +2,7 @@
 @RestController
 public class ChatController {
 
-    /
+
     private static final Logger LOGGER = LoggerFactory.getLogger(ChatController.class);
     private static Map<String, Object> clients = new ConcurrentHashMap<String, Object>();
 
@@ -30,7 +30,6 @@ public class ChatController {
             }
         }
 
-
         @MessageMapping("/chat.deleteUser")
         public void deleteUser (@Payload Message message){
             LOGGER.info(message.getSender());
@@ -38,7 +37,6 @@ public class ChatController {
                 clients.remove(message.getSender());
                 message.setOnlineUsers(clients);
                 rabbitTemplate.convertAndSend("topicExchange", "topic.public", JsonUtil.parseObjToJson(message));
-
             } catch (Exception e) {
                 LOGGER.error(e.getMessage(), e);
             }
@@ -49,10 +47,8 @@ public class ChatController {
             LOGGER.info(message.getSender());
             try {
                 clients.put(message.getSender(), message.getSender());
-
                 message.setOnlineUsers(clients);
                 rabbitTemplate.convertAndSend("topicExchange", "topic.public", JsonUtil.parseObjToJson(message));
-
             } catch (Exception e) {
                 LOGGER.error(e.getMessage(), e);
             }
