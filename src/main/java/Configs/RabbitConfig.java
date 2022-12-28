@@ -1,3 +1,24 @@
+package Configs;
+
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
+import org.springframework.amqp.rabbit.connection.ConnectionFactory;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
+import org.springframework.amqp.support.converter.MessageConverter;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.ApplicationRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
+import org.springframework.amqp.core.*;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
 @Configuration
 public class RabbitConfig {
 
@@ -5,23 +26,27 @@ public class RabbitConfig {
 
 
     public final static String ROUTING_A = "routing.A";
-
     public final static String ROUTING_B = "routing.B";
     public static final String ROUTING_WEBSOCKET = "routing.websocket";
+
+    /* Queues
+    */
 
     public final static String QUEUE_A = "queue.A";
     public final static String QUEUE_B = "queue.B";
     public static final String QUEUE_WEBSOCKET = "queue.websocket";
     public final static String QUEUE_ALL = "queue.All";
 
+    /* Exchanges
+     */
     public final static String EXCHANGE_DIRECT = "exchange.direct";
     public final static String EXCHANGE_FANOUT = "exchange.fanout";
     public final static String TOPIC_EXCHANGE_NAME = "exchange.topic";
     public static final String EXCHANGE_WEBSOCKET = "exchange.websocket";
 
-    /*
-    private static final boolean NON_DURABLE = false;
 
+    private static final boolean NON_DURABLE = false;
+/*
     public static final String FANOUT_QUEUE_1_NAME = "fanout.queue.1";
     public static final String FANOUT_QUEUE_2_NAME = "fanout.queue.2";
     public static final String FANOUT_EXCHANGE_NAME = "fanout.exchange";
@@ -35,7 +60,26 @@ public class RabbitConfig {
     public static final String BINGING_PATTERN_IMPORTANT = "*.important.*";
     public static final String BINDING_PATTERN_ERROR = "#.error";
 
+    @Value("${spring.rabbitmq.host}")
+    //WS @NonFinal String host;
+    private String host;
 
+    @Value("${spring.rabbitmq.port}")
+    private int port;
+
+    @Value("${spring.rabbitmq.username}")
+    private String username;
+
+    @Value("${spring.rabbitmq.password}")
+    private String password;
+    @Bean
+    public ConnectionFactory connectionFactory() {
+        CachingConnectionFactory connectionFactory = new CachingConnectionFactory(host, port);
+        connectionFactory.setUsername(username);
+        connectionFactory.setPassword(password);
+        connectionFactory.setVirtualHost("/");
+        return connectionFactory;
+    }
 
     @Bean
     DirectExchange exchange(){
@@ -48,17 +92,29 @@ public class RabbitConfig {
     @Bean
     TopicExchange topicExchange(){return new TopicExchange(TOPIC_EXCHANGE_NAME);}
 
+    /* Queues init
+     */
     @Bean
     Queue queueA(){
-         return new Queue(QUEUE_A,false);
+        return new Queue(QUEUE_A,false);
+    }
+    @Bean
+    Queue queueB(){
+        return new Queue(QUEUE_B,false);
+    }
+    @Bean
+    Queue queueAll(){
+        return new Queue(QUEUE_ALL,false);
     }
 
+
+    /* Bindings
+    */
     @Bean
     public Binding bindingForA(@Qualifier("queueA") Queue queue, DirectExchange exchange){
         return BindingBuilder.bind(queue)
                 .to(exchange)
                 .with(ROUTING_A);
-
     }
 
     @Bean
@@ -76,16 +132,10 @@ public class RabbitConfig {
 
 
     @Bean
-    Queue queueB(){
-        return new Queue(QUEUE_B,false);
-    }
-
-    @Bean
     Binding bindingForB(@Qualifier("queueB") Queue queue, DirectExchange exchange){
         return BindingBuilder.bind(queue)
                 .to(exchange)
                 .with(ROUTING_B);
-
     }
 
     @Bean
@@ -103,11 +153,6 @@ public class RabbitConfig {
     }
 
     @Bean
-    Queue queueAll(){
-        return new Queue(QUEUE_ALL,false);
-    }
-
-    @Bean
     Binding bindingForAll(@Qualifier("queueAll") Queue queue, TopicExchange exchange){
         return BindingBuilder.bind(queue)
                 .to(exchange)
@@ -121,6 +166,10 @@ public class RabbitConfig {
 
     }
 
+    private DirectExchange websocketExchange() {
+        return new DirectExchange(EXCHANGE_WEBSOCKET);
+    }
+
     public Queue queueWEBSOCKET() {
         return new Queue(QUEUE_WEBSOCKET, true);
     }
@@ -129,13 +178,18 @@ public class RabbitConfig {
         return new Jackson2JsonMessageConverter();
     }
 
+
+    public RabbitTemplate rabbitTemplate() {
+        return new RabbitTemplate(connectionFactory());
+    }
+    /*
     @Bean
     RabbitTemplate rabbitTemplate(ConnectionFactory factory){
        RabbitTemplate rabbitTemplate = new RabbitTemplate(factory);
        rabbitTemplate.setMessageConverter(converter());
        return rabbitTemplate;
     }
-
+*/
 /*
     @Bean
     public Declarables topicBindings(){

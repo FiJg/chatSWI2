@@ -1,4 +1,4 @@
-
+package Models;
 
 import java.util.Map;
 
@@ -7,6 +7,8 @@ public class Message {
     private String content;
     private String sender;
     private String recipient;
+
+    //
     private Map<String,Object> connectedUsers;
 
     public enum MessageType {
