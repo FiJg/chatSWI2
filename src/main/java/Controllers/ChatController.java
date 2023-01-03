@@ -13,6 +13,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
+import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -36,6 +38,8 @@ public class ChatController {
     private RabbitTemplate rabbitTemplate;
 
 
+    //@SendTo("/topic/")
+    //@SendToUser()
     @MessageMapping("/chat.sendMessage")
     public void sendMessage(@Payload Message message, Principal principal) {
         try {

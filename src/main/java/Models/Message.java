@@ -8,7 +8,7 @@ public class Message {
     private String sender;
     private String recipient;
 
-    //
+    //Not impl
     private Map<String,Object> connectedUsers;
 
     public enum MessageType {
