@@ -17,7 +17,7 @@ public class ChatEventListener {
 
     private static final Logger logger = LoggerFactory.getLogger(ChatEventListener.class);
 
-    @Autowired
+   // @Autowired
     private SimpMessageSendingOperations messagingTemplate;
     /*
     public ChatEventListener(SimpMessagingTemplate messagingTemplate, SimpMessageSendingOperations sendingOperations) {
